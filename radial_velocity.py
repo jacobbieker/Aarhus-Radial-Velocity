@@ -21,16 +21,17 @@ def read_files(directory):
         ws = np.arange(0, 2048, 1)
         for index, element in enumerate(ws):
             ws[index] = 4383.0 + 0.022*element
-        converted = np.array([])
+        converted = []
         r = 1.0/2.997924e5  # <- For 1.0km/s resolution
         w1 = np.arange(0, 2048, 1)
         for index, element in enumerate(w1):
             w1[index] = 4385.0 * (1.0 + r)**element
         #print(len(w1))
         #print(len(ws))
-        #print(len(wavelength))
+        #print(len(spectrum[0]))
         for index, spectra in enumerate(spectrum):
-            np.append(converted, np.interp(w1, ws, spectra))
+            converted.append(np.interp(w1, ws, spectra))
+            #print(converted)
         return converted
 
     def plot_wavelength(spectrum, wavelength):
@@ -40,18 +41,22 @@ def read_files(directory):
         :param wavelength:
         :return:
         """
-        for index, element in enumerate(wavelength):
-            #print(len(wavelength))
-            #print(len(element))
-            plt.plot(element, spectrum)
+        #print(len(spectrum))
+        #print(len(wavelength))
+        for index, element in enumerate(spectrum):
+            plt.plot(wavelength[index], element)
+        plt.xlabel("Angstroms")
+        plt.ylabel("Count")
         plt.show()
 
-    def correlate_wavelength(spectrum1, spectrum2):
-        lag = np.arange(-1023, 1024, 1)
+    def correlate_wavelengths(spectrum1, spectrum2):
+        lag = np.arange(-1024, 1024, 1)
+        print(len(spectrum1))
+        print(len(lag))
         value = np.correlate(spectrum1, spectrum2, "same")
         velocity = lag * 1.0
+        print(len(value))
         plt.plot(velocity, value)
-        plt.show()
 
     filenames = glob.glob(os.path.join(directory, "*.fits"))
     print(filenames)
@@ -59,9 +64,9 @@ def read_files(directory):
         table = fits.open(data_file)
         data = table[0].data
         header = table[0].header
-        print(data)
-        print(repr(header))
-        print(data.shape)
+        #print(data)
+        #print(repr(header))
+        #print(data.shape)
         # Going through each of the 5 data sets
         '''
          1: the extracted spectrum (2048x51)
@@ -78,16 +83,18 @@ def read_files(directory):
         '''
         # extracted spectrum
         extracted_spectrum = data[0]
-        before_spectrum = data[3]
-        after_spectrum = data[4]
+        before_wavelength = data[3]
+        after_wavelength = data[4]
 
-        #plot_wavelength(extracted_spectrum, before_spectrum)
-        #plot_wavelength(extracted_spectrum, after_spectrum)
-        #print(extracted_spectrum[0])
+        #plot_wavelength(extracted_spectrum, before_wavelength)
+        plot_wavelength(extracted_spectrum, after_wavelength)
         converted_extracted = convert_to_km(extracted_spectrum)
-        plot_wavelength(converted_extracted, before_spectrum)
-        converted_before = convert_to_km(before_spectrum)
-        converted_after = convert_to_km(after_spectrum)
+        #print(len(converted_extracted))
+        for index in range(0, len(converted_extracted) - 1):
+            correlate_wavelengths(converted_extracted[index], converted_extracted[index + 1])
+        plt.show()
+        converted_before = convert_to_km(before_wavelength)
+        converted_after = convert_to_km(after_wavelength)
 
 
 read_files(os.path.join("data"))
