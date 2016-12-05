@@ -17,29 +17,41 @@ def cross_correlation(extracted, before, after):
 # Read in the data
 def read_files(directory):
 
-    def convert_to_km(wavelength):
+    def convert_to_km(spectrum):
         ws = np.arange(0, 2048, 1)
         for index, element in enumerate(ws):
             ws[index] = 4383.0 + 0.022*element
         converted = np.array([])
-        r = 0.5/2.997924e5  # <- For .5km/s resolution
+        r = 1.0/2.997924e5  # <- For 1.0km/s resolution
         w1 = np.arange(0, 2048, 1)
         for index, element in enumerate(w1):
             w1[index] = 4385.0 * (1.0 + r)**element
-        print(len(w1))
-        print(len(ws))
-        print(len(wavelength))
-        converted = np.interp(w1, ws, wavelength)
-
+        #print(len(w1))
+        #print(len(ws))
+        #print(len(wavelength))
+        for index, spectra in enumerate(spectrum):
+            np.append(converted, np.interp(w1, ws, spectra))
         return converted
 
     def plot_wavelength(spectrum, wavelength):
+        """
+        Plot the spectrum as function of wavelength
+        :param spectrum:
+        :param wavelength:
+        :return:
+        """
         for index, element in enumerate(wavelength):
-            print(len(wavelength))
-            print(len(element))
+            #print(len(wavelength))
+            #print(len(element))
             plt.plot(element, spectrum)
-            plt.show()
+        plt.show()
 
+    def correlate_wavelength(spectrum1, spectrum2):
+        lag = np.arange(-1023, 1024, 1)
+        value = np.correlate(spectrum1, spectrum2, "same")
+        velocity = lag * 1.0
+        plt.plot(velocity, value)
+        plt.show()
 
     filenames = glob.glob(os.path.join(directory, "*.fits"))
     print(filenames)
@@ -68,15 +80,11 @@ def read_files(directory):
         extracted_spectrum = data[0]
         before_spectrum = data[3]
         after_spectrum = data[4]
-        for element in before_spectrum:
-            print(element[0])
-            print(element[1])
-            print("\n\n")
 
         #plot_wavelength(extracted_spectrum, before_spectrum)
         #plot_wavelength(extracted_spectrum, after_spectrum)
-        print(extracted_spectrum[0])
-        converted_extracted = convert_to_km(extracted_spectrum[0])
+        #print(extracted_spectrum[0])
+        converted_extracted = convert_to_km(extracted_spectrum)
         plot_wavelength(converted_extracted, before_spectrum)
         converted_before = convert_to_km(before_spectrum)
         converted_after = convert_to_km(after_spectrum)
