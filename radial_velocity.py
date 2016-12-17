@@ -17,21 +17,19 @@ def cross_correlation(extracted, before, after):
 # Read in the data
 def read_files(directory):
 
-    def convert_to_km(spectrum):
-        ws = np.arange(0, 2048, 1)
-        for index, element in enumerate(ws):
-            ws[index] = 4383.0 + 0.022*element
+    def lambda_n(velocity, start, finish):
+        c = 2.997924e5
+        n_max = np.log(finish/start)/np.log(1 + velocity/c)
+        print(n_max)
+        n_max = int(n_max)
+        new_lambda = []
+        for n in range(0, n_max):
+            new_lambda.append(start * (1 + (velocity/c))**n)
+
+    def interpolate_to_lambda(old_lambda, new_lambda, spectrum):
         converted = []
-        r = 1.0/2.997924e5  # <- For 1.0km/s resolution
-        w1 = np.arange(0, 2048, 1)
-        for index, element in enumerate(w1):
-            w1[index] = 4385.0 * (1.0 + r)**element
-        #print(len(w1))
-        #print(len(ws))
-        #print(len(spectrum[0]))
         for index, spectra in enumerate(spectrum):
-            converted.append(np.interp(w1, ws, spectra))
-            #print(converted)
+            converted.append(np.interp(new_lambda[index], old_lambda[index], spectra))
         return converted
 
     def plot_wavelength(spectrum, wavelength):
@@ -89,6 +87,7 @@ def read_files(directory):
         #plot_wavelength(extracted_spectrum, before_wavelength)
         plot_wavelength(extracted_spectrum, after_wavelength)
         converted_extracted = convert_to_km(extracted_spectrum)
+        plot_wavelength(converted_extracted, after_wavelength)
         #print(len(converted_extracted))
         for index in range(0, len(converted_extracted) - 1):
             correlate_wavelengths(converted_extracted[index], converted_extracted[index + 1])
