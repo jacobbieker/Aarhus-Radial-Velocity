@@ -4,6 +4,7 @@ from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def cross_correlation(extracted, before, after):
     """
 
@@ -18,6 +19,14 @@ def cross_correlation(extracted, before, after):
 def read_files(directory):
 
     def lambda_n(velocity, start, finish):
+        '''
+        del(v) and velocity is the change that I am going for i.e. 1 km/s
+        Steps: Change the different wavelengths to the same lambda through lambda0 *(1+del(v)/c)^n - lambdaN = 5438 or something
+        n is the step for it all, from o to nmax, where nmax gives 5438 Angstroms
+        Then interpolate the original spectrum on the new n value, so that the new flux corresponds to the same wavelength
+        Resample, and then cross-correlate to the template, after converting the solar template to teh same lambda
+        Use Walalce Hinkle for the solar spectrum
+        '''
         c = 2.997924e5
         n_max = np.log(finish/start)/np.log(1 + velocity/c)
         print(n_max)
@@ -27,10 +36,19 @@ def read_files(directory):
             new_lambda.append(start * (1 + (velocity/c))**n)
 
     def interpolate_to_lambda(old_lambda, new_lambda, spectrum):
+        '''
+        :param old_lambda: Set of x-coordinates of the original spectrum
+        :param new_lambda: Set of new x-coordinates to interpolate data on
+        :param spectrum: Set of y-coordinate data, the spectrum flux
+        :return: Converted set of spectrum moved to the new lambda
+        '''
         converted = []
+        new_spectrum = []
         for index, spectra in enumerate(spectrum):
             converted.append(np.interp(new_lambda[index], old_lambda[index], spectra))
-        return converted
+        for index, new_spectra in enumerate(converted):
+            new_spectrum.append((new_lambda[index], new_spectra))
+        return new_spectrum
 
     def plot_wavelength(spectrum, wavelength):
         """
@@ -55,6 +73,7 @@ def read_files(directory):
         velocity = lag * 1.0
         print(len(value))
         plt.plot(velocity, value)
+
 
     filenames = glob.glob(os.path.join(directory, "*.fits"))
     print(filenames)
@@ -84,17 +103,15 @@ def read_files(directory):
         before_wavelength = data[3]
         after_wavelength = data[4]
 
+        converted_extracted = interpolate_to_lambda(5400, 5438, extracted_spectrum)
+
         #plot_wavelength(extracted_spectrum, before_wavelength)
         plot_wavelength(extracted_spectrum, after_wavelength)
-        converted_extracted = convert_to_km(extracted_spectrum)
         plot_wavelength(converted_extracted, after_wavelength)
         #print(len(converted_extracted))
         for index in range(0, len(converted_extracted) - 1):
             correlate_wavelengths(converted_extracted[index], converted_extracted[index + 1])
         plt.show()
-        converted_before = convert_to_km(before_wavelength)
-        converted_after = convert_to_km(after_wavelength)
-
 
 read_files(os.path.join("data"))
 
