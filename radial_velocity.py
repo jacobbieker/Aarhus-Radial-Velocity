@@ -34,10 +34,11 @@ def read_files(directory):
         new_lambda = []
         for n in range(0, n_max):
             new_lambda.append(start * (1 + (velocity/c))**n)
+        return new_lambda
 
     def interpolate_to_lambda(old_lambda, new_lambda, spectrum):
         '''
-        :param old_lambda: Set of x-coordinates of the original spectrum
+        :param old_lambda: Set of x-coordinates of the original spectrum, usually based off wavelength[index]?
         :param new_lambda: Set of new x-coordinates to interpolate data on
         :param spectrum: Set of y-coordinate data, the spectrum flux
         :return: Converted set of spectrum moved to the new lambda
@@ -49,6 +50,21 @@ def read_files(directory):
         for index, new_spectra in enumerate(converted):
             new_spectrum.append((new_lambda[index], new_spectra))
         return new_spectrum
+
+    def convert_and_interpolate(spectrum, wavelength, vel_resolution, start_ang, end_ang):
+        '''
+        Completely converts a given source spectrum into a specified start and end lambda for the given resolution from source spectra
+        :param spectrum: Source spectra
+        :param vel_resolution: Velocity resolution in km/s
+        :param start_ang: Start Angstrom value (i.e. 5400) used for new lambda for the start
+        :param end_ang: End Angstrom value (i.e. 5438) used for new lambda for the finish
+        :return: Converted spectra based on the start and end Angstrom values with the specified resolution in a list of tuples
+        '''
+        converted_spectrum = []
+        calculated_lambda = lambda_n(vel_resolution, start=start_ang, finish=end_ang)
+        for index, spectra in enumerate(spectrum):
+            converted_spectrum.append(interpolate_to_lambda(wavelength[index], calculated_lambda, spectrum))
+        return converted_spectrum
 
     def plot_wavelength(spectrum, wavelength):
         """
