@@ -45,11 +45,11 @@ def read_files(directory):
         '''
         converted = []
         new_spectrum = []
-        for element, spectra in enumerate(spectrum):
-            value = np.interp(new_lambda[element], old_lambda[element], spectra)
-            converted.append(value)
+        #for element, spectra in enumerate(spectrum):
+        value = np.interp(new_lambda, old_lambda, spectrum)
+        converted.append(value)
         for index, new_spectra in enumerate(converted):
-            new_spectrum.append((new_lambda[index], new_spectra))
+            new_spectrum.append((new_lambda, new_spectra))
         return new_spectrum
 
     def convert_and_interpolate(spectrum, wavelength, vel_resolution, start_ang, end_ang):
@@ -62,8 +62,8 @@ def read_files(directory):
         :return: Converted spectra based on the start and end Angstrom values with the specified resolution in a list of tuples
         '''
         converted_spectrum = []
-        calculated_lambda = lambda_n(vel_resolution, start=start_ang, finish=end_ang)
         for i, spectra in enumerate(spectrum):
+            calculated_lambda = lambda_n(vel_resolution, start=min(wavelength[i])+1, finish=max(wavelength[i])-1)
             converted_spectrum.append(interpolate_to_lambda(wavelength[i], calculated_lambda, spectra))
         return converted_spectrum
 
@@ -81,6 +81,19 @@ def read_files(directory):
         plt.xlabel("Angstroms")
         plt.ylabel("Count")
         plt.show()
+
+    def plot_converted(spectrum):
+        """
+        PLot the converted spectrum, which is given as a tuple instead of two arrays
+        :param spectrum: Tuple of two ndarrays of interpolated values
+        :return:
+        """
+        for index, element in enumerate(spectrum):
+            plt.plot(element[0][0], element[0][1])
+        plt.xlabel("Angstroms")
+        plt.ylabel("Count")
+        plt.show()
+
 
     def correlate_wavelengths(spectrum1, spectrum2):
         lag = np.arange(-1024, 1024, 1)
@@ -124,11 +137,11 @@ def read_files(directory):
 
         #plot_wavelength(extracted_spectrum, before_wavelength)
         # plot_wavelength(extracted_spectrum, after_wavelength)
-        plot_wavelength(converted_extracted, extracted_spectrum)
+        plot_converted(converted_extracted)
         #print(len(converted_extracted))
-        for index in range(0, len(converted_extracted) - 1):
-            correlate_wavelengths(converted_extracted[index], converted_extracted[index + 1])
-        plt.show()
+        #for index in range(0, len(converted_extracted) - 1):
+        #    correlate_wavelengths(converted_extracted[index], converted_extracted[index + 1])
+        #plt.show()
 
 read_files(os.path.join("data"))
 
