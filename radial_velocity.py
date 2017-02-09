@@ -45,8 +45,10 @@ def read_files(directory):
         '''
         converted = []
         new_spectrum = []
-        for index, spectra in enumerate(spectrum):
-            converted.append(np.interp(new_lambda[index], old_lambda[index], spectra))
+        print("Spectrum:" + str(len(spectrum[0])))
+        print("Old Lambda:" + str(len(old_lambda[0])))
+        for element, spectra in enumerate(spectrum):
+            converted.append(np.interp(new_lambda[element], old_lambda[element], spectra))
         for index, new_spectra in enumerate(converted):
             new_spectrum.append((new_lambda[index], new_spectra))
         return new_spectrum
@@ -62,8 +64,7 @@ def read_files(directory):
         '''
         converted_spectrum = []
         calculated_lambda = lambda_n(vel_resolution, start=start_ang, finish=end_ang)
-        for index, spectra in enumerate(spectrum):
-            converted_spectrum.append(interpolate_to_lambda(wavelength[index], calculated_lambda, spectrum))
+        converted_spectrum = interpolate_to_lambda(wavelength, calculated_lambda, spectrum)
         return converted_spectrum
 
     def plot_wavelength(spectrum, wavelength):
@@ -73,8 +74,8 @@ def read_files(directory):
         :param wavelength:
         :return:
         """
-        #print(len(spectrum))
-        #print(len(wavelength))
+        print(len(spectrum[0]))
+        print(len(wavelength[0]))
         for index, element in enumerate(spectrum):
             plt.plot(wavelength[index], element)
         plt.xlabel("Angstroms")
@@ -119,7 +120,10 @@ def read_files(directory):
         before_wavelength = data[3]
         after_wavelength = data[4]
 
-        converted_extracted = interpolate_to_lambda(5400, 5438, extracted_spectrum)
+        converted_extracted = convert_and_interpolate(extracted_spectrum, after_wavelength, 1.0, 5400, 5438)
+
+        print("Converted_extracted: " + str(len(converted_extracted)))
+        print("After Wavelength: " + str(len(after_wavelength)))
 
         #plot_wavelength(extracted_spectrum, before_wavelength)
         plot_wavelength(extracted_spectrum, after_wavelength)
