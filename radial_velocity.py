@@ -45,10 +45,9 @@ def read_files(directory):
         '''
         converted = []
         new_spectrum = []
-        print("Spectrum:" + str(len(spectrum[0])))
-        print("Old Lambda:" + str(len(old_lambda[0])))
         for element, spectra in enumerate(spectrum):
-            converted.append(np.interp(new_lambda[element], old_lambda[element], spectra))
+            value = np.interp(new_lambda[element], old_lambda[element], spectra)
+            converted.append(value)
         for index, new_spectra in enumerate(converted):
             new_spectrum.append((new_lambda[index], new_spectra))
         return new_spectrum
@@ -64,7 +63,8 @@ def read_files(directory):
         '''
         converted_spectrum = []
         calculated_lambda = lambda_n(vel_resolution, start=start_ang, finish=end_ang)
-        converted_spectrum = interpolate_to_lambda(wavelength, calculated_lambda, spectrum)
+        for i, spectra in enumerate(spectrum):
+            converted_spectrum.append(interpolate_to_lambda(wavelength[i], calculated_lambda, spectra))
         return converted_spectrum
 
     def plot_wavelength(spectrum, wavelength):
@@ -122,12 +122,9 @@ def read_files(directory):
 
         converted_extracted = convert_and_interpolate(extracted_spectrum, after_wavelength, 1.0, 5400, 5438)
 
-        print("Converted_extracted: " + str(len(converted_extracted)))
-        print("After Wavelength: " + str(len(after_wavelength)))
-
         #plot_wavelength(extracted_spectrum, before_wavelength)
-        plot_wavelength(extracted_spectrum, after_wavelength)
-        plot_wavelength(converted_extracted, after_wavelength)
+        # plot_wavelength(extracted_spectrum, after_wavelength)
+        plot_wavelength(converted_extracted, extracted_spectrum)
         #print(len(converted_extracted))
         for index in range(0, len(converted_extracted) - 1):
             correlate_wavelengths(converted_extracted[index], converted_extracted[index + 1])
