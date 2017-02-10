@@ -29,7 +29,7 @@ def read_files(directory):
         '''
         c = 2.997924e5
         n_max = np.log(finish/start)/np.log(1 + velocity/c)
-        print(n_max)
+        print("Nmax: " + str(n_max))
         n_max = int(n_max)
         new_lambda = []
         for n in range(0, n_max):
@@ -74,12 +74,14 @@ def read_files(directory):
         :param wavelength:
         :return:
         """
-        print(len(spectrum[0]))
-        print(len(wavelength[0]))
-        for index, element in enumerate(spectrum):
-            plt.plot(wavelength[index], element)
+        #print(len(spectrum[0]))
+        #print(len(wavelength[0]))
+        #for index, element in enumerate(spectrum):
+        #    plt.plot(wavelength[index], element)
+        plt.plot(wavelength[0], spectrum[0])
         plt.xlabel("Angstroms")
         plt.ylabel("Count")
+        plt.title("No Interpolation")
         plt.show()
 
     def plot_converted(spectrum):
@@ -88,10 +90,12 @@ def read_files(directory):
         :param spectrum: Tuple of two ndarrays of interpolated values
         :return:
         """
-        for index, element in enumerate(spectrum):
-            plt.plot(element[0][0], element[0][1])
+        #for index, element in enumerate(spectrum):
+        #    plt.plot(element[0][0], element[0][1])
+        plt.plot(spectrum[0][0][0], spectrum[0][0][1])
         plt.xlabel("Angstroms")
         plt.ylabel("Count")
+        plt.title("Interpolated")
         plt.show()
 
 
@@ -136,7 +140,7 @@ def read_files(directory):
         converted_extracted = convert_and_interpolate(extracted_spectrum, after_wavelength, 1.0, 5400, 5438)
 
         #plot_wavelength(extracted_spectrum, before_wavelength)
-        # plot_wavelength(extracted_spectrum, after_wavelength)
+        plot_wavelength(extracted_spectrum, after_wavelength)
         plot_converted(converted_extracted)
         #print(len(converted_extracted))
         #for index in range(0, len(converted_extracted) - 1):
