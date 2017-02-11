@@ -76,9 +76,8 @@ def read_files(directory):
         """
         #print(len(spectrum[0]))
         #print(len(wavelength[0]))
-        #for index, element in enumerate(spectrum):
-        #    plt.plot(wavelength[index], element)
-        plt.plot(wavelength[0], spectrum[0])
+        for index, element in enumerate(spectrum):
+            plt.plot(wavelength[index], element)
         plt.xlabel("Angstroms")
         plt.ylabel("Count")
         plt.title("No Interpolation")
@@ -90,9 +89,8 @@ def read_files(directory):
         :param spectrum: Tuple of two ndarrays of interpolated values
         :return:
         """
-        #for index, element in enumerate(spectrum):
-        #    plt.plot(element[0][0], element[0][1])
-        plt.plot(spectrum[0][0][0], spectrum[0][0][1])
+        for index, element in enumerate(spectrum):
+            plt.plot(element[0][0], element[0][1])
         plt.xlabel("Angstroms")
         plt.ylabel("Count")
         plt.title("Interpolated")
@@ -146,6 +144,7 @@ def read_files(directory):
         #for index in range(0, len(converted_extracted) - 1):
         #    correlate_wavelengths(converted_extracted[index], converted_extracted[index + 1])
         #plt.show()
+
 
 read_files(os.path.join("data"))
 
